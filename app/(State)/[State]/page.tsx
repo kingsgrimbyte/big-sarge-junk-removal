@@ -2,6 +2,13 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Banner from "@/app/components/Home/Banner";
 import Service from "@/app/components/Home/Service";
+import contactContent from "@/app/Data/content";
+import subdomainContent from "@/app/Data/FinalContent";
+
+const ContactInfo: any = contactContent.contactContent;
+const content: any = subdomainContent.subdomainData;
+const home: any = contactContent.homePageContent;
+
 import Faq from "@/app/components/Home/Faq";
 import HourCta from "@/app/components/Home/HourCta";
 import ReviewWidget from "@/app/components/Widgets/ReviewWidget";
@@ -11,15 +18,7 @@ import ProcessWidget from "@/app/components/Widgets/ProcessWidget";
 import NavbarState from "@/app/components/State/NavbarState";
 import Link from "next/link";
 import ZipAndNeighAccordian from "@/app/components/Home/ZipAndNeighAccordian";
-import Types from "@/app/components/Widgets/Types";
 // import Service from "@/app/Components/Service";
-
-import contactContent from "@/app/Data/content";
-import subdomainContent from "@/app/Data/FinalContent";
-
-const ContactInfo: any = contactContent.contactContent;
-const content: any = subdomainContent.subdomainData;
-const home: any = contactContent.homePageContent;
 
 interface SubdomainPageProps {
   params: { State: string };
@@ -97,6 +96,20 @@ export function generateMetadata({ params }: SubdomainPageProps) {
     },
   };
 }
+interface CityData {
+  slug: string;
+  bannerText: string;
+  hone: string;
+  pone: string;
+  htwo: string;
+  ptwo: string;
+  hthree: string;
+  pthree: string;
+  hfour: string;
+  pfour: string;
+  history: string[];
+  topSight: { name: string; image: string; description: string }[];
+}
 export default function SubdomainPage({ params }: SubdomainPageProps) {
   // console.log(params)
   const { State } = params;
@@ -112,7 +125,13 @@ export default function SubdomainPage({ params }: SubdomainPageProps) {
   }
   // nity or db query us particular subdomain read data from database .... neeche theme nu pass hoyega and page render hojaega
   // Render subdomain-specific content
-  const ContentData = cityData[State];
+   const ContentData = JSON.parse(
+    JSON.stringify(cityData[State])
+      .split("[location]")
+      .join(ContactInfo.location)
+      .split("[phone]")
+      .join(ContactInfo.No),
+  );
   const slugs: any = Object.keys(cityData)
     .filter((key) => key !== State)
     .map((key) => cityData[key]);
@@ -172,14 +191,14 @@ export default function SubdomainPage({ params }: SubdomainPageProps) {
           ratingValue: 4.802,
         },
       },
-      {
+       {
         "@type": "FAQPage",
-        mainEntity: home.faq.slice(0, 5).map((faq: any) => ({
+        mainEntity: ContentData.faq.map((faq: any) => ({
           "@type": "Question",
-          name: faq?.FAQ?.split("[location]").join(State),
+          name: faq?.ques?.split("[location]").join(State),
           acceptedAnswer: {
             "@type": "Answer",
-            text: faq?.Answer?.split("[location]").join(State),
+            text: faq?.ans?.split("[location]").join(State),
           },
         })),
       },
@@ -277,9 +296,6 @@ export default function SubdomainPage({ params }: SubdomainPageProps) {
         {/* Service */}
         <div className="mt-14 md:mt-20">
           <Service value={State} />
-          <Types
-            value={`${ContentData?.name}, ${abbrevations.toUpperCase()}`}
-          />
         </div>
         {/* Service */}
         {/* Needs */}
@@ -533,14 +549,14 @@ export default function SubdomainPage({ params }: SubdomainPageProps) {
               <div className="mx-10 mt-4 flex h-fit w-auto flex-wrap justify-center gap-4">
                 {ContentData?.neighbourhoods?.split("|").map((item: any) => (
                   <div className="" key={item}>
-                    <Link
+                    <a
                       target="_blank"
                       href={`https://www.google.com/maps/search/?api=1&query=${item}, ${ContentData?.slug},`}
                     >
                       <p className="border bg-minor px-2 py-1 text-white duration-100 ease-in-out hover:text-main">
                         {item}
                       </p>
-                    </Link>
+                    </a>
                   </div>
                 ))}
               </div>
@@ -583,7 +599,7 @@ export default function SubdomainPage({ params }: SubdomainPageProps) {
         ) : null}
         {/* Zip */}
         {/* FAQ */}
-        {ContentData?.faq ? <Faq value={State} /> : null}
+        {ContentData?.faq ?  <Faq data={ContentData?.faq} value={`${ContentData.name}, ${abbrevations.toUpperCase()}`}/> : null}
         {/* FAQ */}
         {/* CounterCta */}
         {/* CounterCta */}
